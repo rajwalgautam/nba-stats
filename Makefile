@@ -1,5 +1,5 @@
 local-deps:
-	kubectl apply -f k8s/local/postgres-adminer.yaml
+	kubectl apply -f k8s/local/postgres-adminer.yaml -n nba-stats
 
 clean-local-deps:
-	kubectl delete -f k8s/local/postgres-adminer.yaml 
+	kubectl delete -f k8s/local/postgres-adminer.yaml -n nba-stats
