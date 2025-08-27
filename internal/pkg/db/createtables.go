@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -29,9 +30,9 @@ func CreateTables(conn *pgx.Conn) error {
 	for _, s := range createStatements {
 		_, err := conn.Exec(context.Background(), s)
 		if err != nil {
-			return fmt.Errorf("error creating tables.\nstatement: %v\nerror: %w", s, err)
+			return fmt.Errorf("error creating gamestats tables.\nstatement: %v\nerror: %w", s, err)
 		}
 	}
-	fmt.Printf("Successfully created tables\n")
+	log.Println("Successfully created gamestats tables")
 	return nil
 }
