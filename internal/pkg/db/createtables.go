@@ -24,7 +24,7 @@ func CreateTables(conn *pgx.Conn) error {
 	value jsonb not null);`,
 
 		`create table if not exists nba_players(
-	key integer primary key,
+	key uuid primary key,
 	value jsonb not null);`,
 	}
 	for _, s := range createStatements {
