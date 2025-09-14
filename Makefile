@@ -1,5 +1,5 @@
 local-deps:
-	kubectl apply -f k8s/local/ -n nba-stats
+	kubectl apply -R -f k8s/local/ -n nba-stats
 
 clean-local-deps:
-	kubectl delete -f k8s/local/ -n nba-stats
+	kubectl delete -R -f k8s/local/ -n nba-stats
