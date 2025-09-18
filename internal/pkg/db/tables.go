@@ -8,6 +8,7 @@ var (
 		(key %s primary key, value %s not null);`
 )
 
+// Build the SQL commands to create the tables
 func getCreateTableSQLCommands() []string {
 	commands := make([]string, len(tables))
 	for i, table := range tables {
@@ -16,6 +17,7 @@ func getCreateTableSQLCommands() []string {
 	return commands
 }
 
+// DB Tables
 type tableDef struct {
 	name      string
 	keyType   string
