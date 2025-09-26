@@ -24,7 +24,7 @@ func main() {
 	// init stats client
 	apiKey, ok := os.LookupEnv("SPORTSBLAZE_API_KEY")
 	if !ok {
-		log.Fatal("sportsblaze api key required")
+		log.Fatal("error: sportsblaze api key required")
 	}
 	statsClient := sportsblaze.New(sportsblaze.Options{ApiKey: apiKey})
 
