@@ -2,12 +2,12 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rajwalgautam/nba-stats/internal/pkg/sportsblaze"
 )
 
 type DB struct {
@@ -15,7 +15,8 @@ type DB struct {
 }
 
 func New() (*DB, error) {
-	connStr := createConnectionString(os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_DB"))
+	// connStr := createConnectionString(os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_HOST"), os.Getenv("POSTGRES_PORT"), os.Getenv("POSTGRES_DB"))
+	connStr := createConnectionString("nbastatsuser", "nbastatspassword", "localhost", "30001", "nba_stats")
 	ctx := context.Background()
 
 	// Create connection pool
@@ -52,7 +53,26 @@ func (db *DB) CreateTables() error {
 			return fmt.Errorf("error creating gamestats tables.\nstatement: %v\nerror: %w", s, err)
 		}
 	}
-	log.Println("Successfully created gamestats tables")
+	return nil
+}
+
+func (db *DB) SaveTeam(team sportsblaze.Team) error {
+	teamBytes, err := json.Marshal(Team{
+		FullName:     team.Name,
+		Abbreviation: "somevalue", // TODO: get abbreviation
+	})
+	if err != nil {
+		return fmt.Errorf("error marshalling team %s: %w", team.Name, err)
+	}
+	return db.set(nbaTeamsTable.name, team.ID, teamBytes)
+}
+
+func (db *DB) set(table string, key string, value []byte) error {
+	sql := fmt.Sprintf(setSql, table)
+	_, err := db.conn.Exec(context.Background(), sql, key, value)
+	if err != nil {
+		return fmt.Errorf("error setting value in table %s for key %s: %w", table, key, err)
+	}
 	return nil
 }
 

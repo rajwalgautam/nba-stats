@@ -61,11 +61,11 @@ func (c *Client) DailyBoxScores(date string) (*DailyBoxScores, error) {
 }
 
 func (c *Client) get(path string) ([]byte, error) {
-	withKey, err := c.addApiKey(path)
+	urlWithKey, err := c.addApiKey(path)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.httpc.Get(withKey)
+	resp, err := c.httpc.Get(urlWithKey)
 	if err != nil {
 		return nil, err
 	}
