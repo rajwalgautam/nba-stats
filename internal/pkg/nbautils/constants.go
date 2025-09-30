@@ -13,7 +13,7 @@ var NbaTeamsAbbreviations = map[string]string{
 	"Golden State Warriors":  "GSW",
 	"Houston Rockets":        "HOU",
 	"Indiana Pacers":         "IND",
-	"Los Angeles Clippers":   "LAC",
+	"LA Clippers":            "LAC",
 	"Los Angeles Lakers":     "LAL",
 	"Memphis Grizzlies":      "MEM",
 	"Miami Heat":             "MIA",

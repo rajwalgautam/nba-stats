@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/rajwalgautam/nba-stats/internal/pkg/db"
 	"github.com/rajwalgautam/nba-stats/internal/pkg/gamestatsjob"
@@ -41,10 +43,9 @@ func initDb() (*db.DB, error) {
 }
 
 func initStatsClient() (*sportsblaze.Client, error) {
-	// apiKey, ok := os.LookupEnv("SPORTSBLAZE_API_KEY")
-	// if !ok {
-	// 	return nil, errors.New("error: sportsblaze api key required")
-	// }
-	apiKey := "sbf1zukz3ya0hsyvyfjb06e"
+	apiKey, ok := os.LookupEnv("SPORTSBLAZE_API_KEY")
+	if !ok {
+		return nil, errors.New("error: sportsblaze api key required")
+	}
 	return sportsblaze.New(sportsblaze.Options{ApiKey: apiKey}), nil
 }

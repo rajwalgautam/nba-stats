@@ -1,16 +1,11 @@
 package gamestatsjob
 
 import (
-	"sync"
-
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/rajwalgautam/nba-stats/internal/pkg/sportsblaze"
 )
 
 func handleGames(games []sportsblaze.Game, storage Storage) error {
-	var wg sync.WaitGroup
-	wg.Add(len(games))
-
 	var me error
 	for _, game := range games {
 		err := processGame(game, storage)
@@ -22,23 +17,19 @@ func handleGames(games []sportsblaze.Game, storage Storage) error {
 }
 
 func processGame(game sportsblaze.Game, storage Storage) error {
-	var err, errTeam error
-
 	// handle teams
-	err = storage.SaveTeam(game.Teams.Home)
+	err := storage.SaveTeam(game.Teams.Home)
 	if err != nil {
-		errTeam = multierror.Append(errTeam, err)
+		return err
 	}
 	err = storage.SaveTeam(game.Teams.Away)
 	if err != nil {
-		errTeam = multierror.Append(errTeam, err)
+		return err
 	}
 
-	// aggregate errors
-	// TODO: add errors from other stats processing
-	if errTeam != nil {
-		err = multierror.Append(err, errTeam)
-	}
+	// handle box score stats
 
-	return err
+	// handle player stats
+
+	return nil
 }
