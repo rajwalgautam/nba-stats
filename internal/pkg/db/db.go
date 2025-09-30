@@ -57,14 +57,11 @@ func (db *DB) CreateTables() error {
 }
 
 func (db *DB) SaveTeam(team sportsblaze.Team) error {
-	teamBytes, err := json.Marshal(Team{
-		FullName:     team.Name,
-		Abbreviation: "somevalue", // TODO: get abbreviation
-	})
+	bytes, err := json.Marshal(transformTeamToDBTeam(team))
 	if err != nil {
 		return fmt.Errorf("error marshalling team %s: %w", team.Name, err)
 	}
-	return db.set(nbaTeamsTable.name, team.ID, teamBytes)
+	return db.set(nbaTeamsTable.name, team.ID, bytes)
 }
 
 func (db *DB) set(table string, key string, value []byte) error {
