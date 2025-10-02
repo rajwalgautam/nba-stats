@@ -2,12 +2,13 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rajwalgautam/nba-stats/internal/pkg/sportsblaze"
 )
 
 type DB struct {
@@ -52,7 +53,23 @@ func (db *DB) CreateTables() error {
 			return fmt.Errorf("error creating gamestats tables.\nstatement: %v\nerror: %w", s, err)
 		}
 	}
-	log.Println("Successfully created gamestats tables")
+	return nil
+}
+
+func (db *DB) SaveTeam(team sportsblaze.Team) error {
+	bytes, err := json.Marshal(transformTeamToDBTeam(team))
+	if err != nil {
+		return fmt.Errorf("error marshalling team %s: %w", team.Name, err)
+	}
+	return db.set(nbaTeamsTable.name, team.ID, bytes)
+}
+
+func (db *DB) set(table string, key string, value []byte) error {
+	sql := fmt.Sprintf(setSql, table)
+	_, err := db.conn.Exec(context.Background(), sql, key, value)
+	if err != nil {
+		return fmt.Errorf("error setting value in table %s for key %s: %w", table, key, err)
+	}
 	return nil
 }
 

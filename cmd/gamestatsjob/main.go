@@ -1,51 +1,51 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/rajwalgautam/nba-stats/internal/pkg/db"
+	"github.com/rajwalgautam/nba-stats/internal/pkg/gamestatsjob"
 	"github.com/rajwalgautam/nba-stats/internal/pkg/sportsblaze"
 )
 
 func main() {
-	// init db
-	db, err := db.New()
+	db, err := initDb()
 	if err != nil {
-		log.Fatalf("db connection err: %v", err)
-	}
-	err = db.Init()
-	if err != nil {
-		log.Fatalf("db init err: %v", err)
+		log.Fatalf("error initializing db: %v", err)
 	}
 	log.Println("db initialized successfully")
 
-	// init stats client
+	statsClient, err := initStatsClient()
+	if err != nil {
+		log.Fatalf("error initializing stats client: %v", err)
+	}
+	log.Println("stats client initialized successfully")
+
+	err = gamestatsjob.Run(db, statsClient)
+	if err != nil {
+		log.Fatalf("error running gamestatsjob: %v", err)
+	}
+}
+
+func initDb() (*db.DB, error) {
+	statsdb, err := db.New()
+	if err != nil {
+		return nil, fmt.Errorf("db connection err: %v", err)
+	}
+	err = statsdb.Init()
+	if err != nil {
+		return nil, fmt.Errorf("db init err: %v", err)
+	}
+	return statsdb, nil
+}
+
+func initStatsClient() (*sportsblaze.Client, error) {
 	apiKey, ok := os.LookupEnv("SPORTSBLAZE_API_KEY")
 	if !ok {
-		log.Fatal("error: sportsblaze api key required")
+		return nil, errors.New("error: sportsblaze api key required")
 	}
-	statsClient := sportsblaze.New(sportsblaze.Options{ApiKey: apiKey})
-
-	// fetch daily box scores
-	date := "2024-10-24"
-	dailyBoxScores, err := statsClient.DailyBoxScores(date)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("got %d games for %s\n", len(dailyBoxScores.Games), date)
-
-	boxScoresOutputFn, ok := os.LookupEnv("BOX_SCORES_OUTPUT_FILENAME")
-	if ok {
-		// write to file
-		b, err := json.MarshalIndent(dailyBoxScores, "", "	")
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = os.WriteFile(boxScoresOutputFn, b, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	return sportsblaze.New(sportsblaze.Options{ApiKey: apiKey}), nil
 }
